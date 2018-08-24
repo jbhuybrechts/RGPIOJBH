@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        header{
+            padding: 1em;
+            color: white;
+            background-color: black;
+            clear: left;
+            text-align: center;
+        }  
+        nav {
+            
+            background-color: gray;
+            margin-left: 00%;
+            margin-right: 00%;
+            
+            padding: 5px;
+        }
+        ul.a {
+            
+            list-style-type: none;
+        }
+        
+        li.a {
+            display: inline;
+        }
+        li.b {
+            display: block;
+            
+        }
+        .button{
+            
+            background-color: gray;
+            font-size: 32px;
+            border:none;
+            
+        }
+        .button:hover{
+            font-weight: bold;
+        }
+        .button.left{
+            
+            background-color: gray;
+            font-size: 24px;
+            border:none;
+            
+        }
+        .column {
+            float: left;
+            padding: 10px;
+        }
+        .column.side{
+            width:15%;
+            background-color: gray;
+        }
+        .column.middle{
+            width:75%;
+        }
+        .row:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+        @media screen and (max-width: 600px) {
+  .column.side, .column.middle {
+    width: 100%;
+  }
+}
+    </style> 
+    
+    </head>
+    
+<body onload="wsconnect()">
+    
+
+
+
+<header style="text-align:center;font-size:300%"> Huis Automatisatie Systeem</header>
+<nav> <ul class="a"><li class="a"><button class="button" onclick="myFunction()">Home</button></li> <li class="a"> <button class="button"  onclick="myFunction()">Buiten</button> </li> <li class="a"><button class="button" onclick="myFunction()">Gelijkvloers</button></li>  <li class="a"><button class="button" onclick="myFunction()">Boven</button></li> <li class="a"><button class="button" onclick="myFunction()">Kelder</button></li> </ul></nav>
+<div class="row">
+    <div class="column side">
+    
+         <ul class="a">
+             <li class="b"><button class= "button left" onclick="myFunction()">Status</button></li>
+             <li class="b"><button class= "button left" onclick="myFunction()">thermostaat</button></li>
+             <li class="b"><button class= "button left" onclick="myFunction()">other</button></li>
+    </ul>
+ </div>
+    <div class="column middle">
+
+<p>The onclick event is used to trigger a function when an element is clicked on.</p>
+
+<p>Click the button to trigger a function that will output "Hello World" in a p element with id="demo".</p>
+
+<button onclick="myFunction()">Click me</button>
+<button onclick="sendMessage()">Send Message</button>
+
+<p id="demo"></p>
+<p id="status"></p>
+<p id="status1"></p>
+<p id="event"></p>
+<p id="serverAddress"></p> 
+    </div>
+</div>
+<script>
+   var g_serverAddress = window.location.host.split(":", 1)[0];
+   var eventsTabel= "";
+   g_serverAddress = "ws://" + g_serverAddress + ":1302";
+   document.getElementById("serverAddress").innerHTML = g_serverAddress;
+   var wsocket;
+function myFunction() {
+  document.getElementById("demo").innerHTML = "Hello World xyz";
+}
+function sendMessage(){
+        var cmd = new Object();
+        cmd.Command = "EVENTS";
+        eventsTabel="<table><tr><th>Uur</th><th>Min</th><th>Set Temp </th></tr>";
+       wsocket.send(JSON.stringify(cmd));
+   } 
+function wsconnect(){ 
+if ("WebSocket" in window)
+    {
+     document.getElementById("status").innerHTML = "var gecreaerd";
+     wsocket = new WebSocket (g_serverAddress);
+     document.getElementById("status").innerHTML = "wsocket aangemaaktt";
+  wsocket.onopen = function (){
+    document.getElementById("status").innerHTML = "Conneted";
+    //wsocket.send("status"); 
+    };
+  wsocket.onmessage = function (event){
+      document.getElementById("status").innerHTML = "bericht ontvangen";
+      //document.getElementById("event").innerHTML = event.data;
+        try{
+          var obj = JSON.parse(event.data);
+      } catch (e){  
+      }
+      eventsTabel=eventsTabel+"<tr><td>"+obj.hour+"</td><td>"+obj.min+"</td><td>"+obj.value+"</td></tr></table>";
+      if (obj.object === "EVENTS"){
+       
+            
+          document.getElementById("status").style.visibility = "visible";
+          document.getElementById("status").innerHTML = eventsTabel;
+          eventsTabel=eventsTabel.substring(0,eventsTabel.length-8);
+      }
+      
+    
+    
+    //wsocket.send(JSON.stringify(cmd));
+    };
+    
+
+  } else {
+    alert("WebSocket NOT supported by your Brouwser!");
+  }
+}
+</script>
+
+</body>
+</html>
+
